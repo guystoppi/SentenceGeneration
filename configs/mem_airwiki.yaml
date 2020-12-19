@@ -1,4 +1,5 @@
 logdir: "logs/memory_data_reintro_airplane_wiki"
+device: 'cuda'
 
 model:
   num_blocks: 5

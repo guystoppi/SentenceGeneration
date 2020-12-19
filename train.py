@@ -13,7 +13,7 @@ import torch
 from torch import nn
 from torch.utils.tensorboard import SummaryWriter
 
-def eval_model(model, dataset, inplst):
+def eval_model(model, dataset, inplst, device):
     model.eval()
     model.reset()
 
@@ -21,8 +21,9 @@ def eval_model(model, dataset, inplst):
     output = " ".join([dataset.vocab[idx] for idx in inplst]) + " | "
 
     for _ in range(30):
-        pred = model(torch.from_numpy(np.array(inplst)).unsqueeze(1))
-        pred_idx = np.argmax(pred[0].detach().numpy())
+        inpt = torch.from_numpy(np.array(inplst)).unsqueeze(1).to(device)
+        pred = model()
+        pred_idx = np.argmax(pred[0].detach().cpu().numpy())
         inplst = inplst[1:] + [pred_idx]
         total += [pred_idx]
 
@@ -38,7 +39,8 @@ if __name__ == "__main__":
         config = yaml.load(yamlfile, Loader=yaml.Loader)
 
     words = WordDataset(**config["dataset"])
-    model = Model(**config["model"], vocab_size=len(words.vocab))
+    device = config["device"]
+    model = Model(**config["model"], vocab_size=len(words.vocab)).to(device)
 
     cross_entropy = nn.CrossEntropyLoss()
     optim = torch.optim.Adam(model.parameters(), lr=config["train"]["lr"])
@@ -53,15 +55,15 @@ if __name__ == "__main__":
         if file_skip:
             model.reset()
 
-        query = query.astype(np.int64)
-        label = label.astype(np.int64)
+        query = query.astype(np.int64).to(device)
+        label = label.astype(np.int64).to(device)
 
         query_torch = torch.from_numpy(query)
         label_torch = torch.from_numpy(label)
 
         pred = model(query_torch)
 
-        acc = (np.argmax(pred.detach().numpy(), axis=1) == label).mean()
+        acc = (np.argmax(pred.detach().cpu().numpy(), axis=1) == label).mean()
 
         loss_output = cross_entropy(pred, label_torch)
         loss_output.backward()
