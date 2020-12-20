@@ -112,8 +112,6 @@ class WordDataset:
     def get_next_data_rotation(self):
         if self.batch_step % self.rotation_frequency == 0:
             subpower_set = np.random.randint(2, size=self.num_rotations)
-            
-            print(subpower_set)
 
             self.rotation_dataset = np.concatenate([
                 self.dataset[j] for j in range(len(self.dataset)) if subpower_set[j]
@@ -132,7 +130,6 @@ class WordDataset:
             self.get_next_data_rotation()
             dataset = self.rotation_dataset
             file_skip = self.batch_step % self.rotation_frequency == 0
-            print(dataset.shape, self.batch_step)
 
             self.data_idx %= dataset.shape[1] // self.leadup_size - 1
         else:
