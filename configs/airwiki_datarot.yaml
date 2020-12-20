@@ -1,0 +1,29 @@
+logdir: "logs/data_rot_airwiki"
+device: 'cpu'
+
+model:
+  num_blocks: 5
+  num_heads: 4
+  zvx_size: 256
+  qk_size: 128
+  dropout: 0.4
+  use_memory: false
+
+dataset:
+  files:
+    - bpe/Airplane.txt
+    - bpe/Wikipedia.txt
+  batch_size: 15
+  leadup_size: 12
+  vocab_file: "assets/bpe_airwiki.vc"
+  num_rotations: 5
+  rotation_frequency: 500
+
+train:
+  save_every: 10000
+  max_iter: 100000
+  eval_every: 300
+  lr: 0.00001
+  lr_decay:
+    gamma: 0.2
+    step_size: 5000
