@@ -76,7 +76,9 @@ if __name__ == "__main__":
         writer.add_scalar("Loss", loss_output.item(), ii)
         writer.add_scalar("Accuracy", acc, ii)
 
-        if (ii + 1) % config["train"]["eval_every"] == 0:
+        if (ii + 1) % config["train"]["eval_every"] == 0:        
+            writer.add_text("Data Rotations", " ".join([str(val) for val in dataset.subpower_set]), ii)
+            
             rand_idx = np.random.randint(query.shape[0])
             sentence_out = eval_model(model, words, query[rand_idx].tolist(), device)
             writer.add_text("Eval", sentence_out, ii)

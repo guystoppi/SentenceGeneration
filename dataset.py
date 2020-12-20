@@ -111,10 +111,12 @@ class WordDataset:
 
     def get_next_data_rotation(self):
         if self.batch_step % self.rotation_frequency == 0:
-            subpower_set = np.random.randint(2, size=self.num_rotations)
+            self.subpower_set = np.random.randint(2, size=self.num_rotations)
+            if self.subpower_set.sum() == 0:
+                self.subpower_set[np.random.randint(self.num_rotations)] = 1
 
             self.rotation_dataset = np.concatenate([
-                self.dataset[j] for j in range(len(self.dataset)) if subpower_set[j]
+                self.dataset[j] for j in range(len(self.dataset)) if self.subpower_set[j]
             ], axis=1)
 
 
