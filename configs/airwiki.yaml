@@ -1,0 +1,29 @@
+logdir: "logs/airplane_wiki"
+device: 'cuda'
+
+model:
+  num_blocks: 5
+  num_heads: 4
+  zvx_size: 256
+  qk_size: 128
+  dropout: 0.4
+  memory: False
+
+dataset:
+  files:
+    - bpe/Airplane.txt
+    - bpe/Wikipedia.txt
+  batch_size: 15
+  leadup_size: 12
+  vocab_file: "assets/bpe_airwiki.vc"
+  dataset_sizes: null
+
+train:
+  save_every: 10000
+  max_iter: 100000
+  eval_every: 300
+  lr: 0.00001
+  lr_decay:
+    gamma: 0.2
+    step_size: 1
+  lr_decay_steps: [11000, 13000]

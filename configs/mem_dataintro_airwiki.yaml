@@ -24,4 +24,5 @@ train:
   lr: 0.00001
   lr_decay:
     gamma: 0.2
-    step_size: 5000
+    step_size: 1
+  lr_decay_steps: [11000, 13000]

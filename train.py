@@ -17,13 +17,14 @@ def eval_model(model, dataset, inplst, device):
     model.eval()
     model.reset()
 
-    total = [] # inplst + ["|"]
+    total = []
     output = " ".join([dataset.vocab[idx] for idx in inplst]) + " | "
 
     for _ in range(30):
         inpt = torch.from_numpy(np.array(inplst)).unsqueeze(1).to(device)
-        pred = model()
-        pred_idx = np.argmax(pred[0].detach().cpu().numpy())
+        pred = torch.nn.functional.softmax(model(inpt)[0])
+        num_vocab = pred.shape[0]
+        pred_idx = np.random.choice(np.arange(num_vocab), p=pred.detach().cpu().numpy())
         inplst = inplst[1:] + [pred_idx]
         total += [pred_idx]
 
@@ -34,6 +35,8 @@ def eval_model(model, dataset, inplst, device):
     return output
 
 if __name__ == "__main__":
+
+    sys.argv = ["train.py", "configs/mem_dataintro_airwiki.yaml"]
 
     with open(sys.argv[1]) as yamlfile:
         config = yaml.load(yamlfile, Loader=yaml.Loader)
@@ -55,11 +58,11 @@ if __name__ == "__main__":
         if file_skip:
             model.reset()
 
-        query = query.astype(np.int64).to(device)
-        label = label.astype(np.int64).to(device)
+        query = query.astype(np.int64)
+        label = label.astype(np.int64)
 
-        query_torch = torch.from_numpy(query)
-        label_torch = torch.from_numpy(label)
+        query_torch = torch.from_numpy(query).to(device)
+        label_torch = torch.from_numpy(label).to(device)
 
         pred = model(query_torch)
 
@@ -77,10 +80,8 @@ if __name__ == "__main__":
 
         if (ii + 1) % config["train"]["eval_every"] == 0:
             rand_idx = np.random.randint(query.shape[0])
-            sentence_out = eval_model(model, words, query[rand_idx].tolist())
+            sentence_out = eval_model(model, words, query[rand_idx].tolist(), device)
             writer.add_text("Eval", sentence_out, ii)
 
         if (ii + 1) % config["train"]["save_every"] == 0:
             torch.save(model.state_dict(), os.path.join(config["logdir"], "model%05d.pth" % (ii)))
-
-
