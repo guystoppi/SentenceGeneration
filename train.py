@@ -24,7 +24,7 @@ def eval_model(model, dataset, inplst, device):
         inpt = torch.from_numpy(np.array(inplst)).unsqueeze(1).to(device)
         pred = torch.nn.functional.softmax(model(inpt)[0])
         num_vocab = pred.shape[0]
-        pred_idx = np.random.choice(np.arange(num_vocab), p=pred.detach().cpu().numpy())
+        pred_idx = np.argmax(pred.detach().cpu().numpy())
         inplst = inplst[1:] + [pred_idx]
         total += [pred_idx]
 
@@ -35,8 +35,6 @@ def eval_model(model, dataset, inplst, device):
     return output
 
 if __name__ == "__main__":
-
-    sys.argv = ["train.py", "configs/mem_dataintro_airwiki.yaml"]
 
     with open(sys.argv[1]) as yamlfile:
         config = yaml.load(yamlfile, Loader=yaml.Loader)

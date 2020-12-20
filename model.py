@@ -19,10 +19,12 @@ class Model(nn.Module):
         self.final1 = nn.Linear(zvx_size, vocab_size)
 
     def step(self):
-        self.mem1.step()
+      if self.use_memory:
+          self.mem1.step()
 
     def reset(self):
-        self.mem1.reset()
+      if self.use_memory:
+          self.mem1.reset()
 
     def forward(self, word_vectors):
 
